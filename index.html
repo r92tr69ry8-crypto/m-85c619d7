@@ -46,21 +46,21 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
 /* lock: an envelope */
 #lock{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 16px) 20px calc(env(safe-area-inset-bottom) + 16px)}
-.env{position:relative;width:min(80vw,310px);aspect-ratio:300/190;perspective:900px;border-radius:3px;box-shadow:0 22px 44px rgba(0,0,0,.5),0 3px 8px rgba(0,0,0,.35);transform:rotate(-1.2deg)}
+.env{position:relative;container-type:inline-size;width:min(80vw,310px,46dvh);aspect-ratio:300/190;perspective:900px;border-radius:3px;box-shadow:0 22px 44px rgba(0,0,0,.5),0 3px 8px rgba(0,0,0,.35);transform:rotate(-1.2deg)}
 .env>.envbg{position:absolute;inset:0;width:100%;height:100%}
 .flapw{position:absolute;left:0;right:0;top:0;height:62%;transform-origin:50% 0;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;filter:drop-shadow(0 3px 2px rgba(60,28,18,.28));transition:transform 1s var(--ease) .45s;z-index:2}
 .flap{position:absolute;inset:0;background-color:#e9d7b9;background-image:var(--grain);background-blend-mode:soft-light;clip-path:polygon(0 0,100% 0,50% 100%);-webkit-clip-path:polygon(0 0,100% 0,50% 100%)}
-.seal{position:absolute;left:50%;top:62%;width:76px;height:76px;margin:-40px 0 0 -38px;z-index:3;filter:drop-shadow(0 3px 4px rgba(40,6,10,.45))}
-.envname{position:absolute;left:0;right:0;bottom:7%;text-align:center;font:400 30px/1 var(--hand);color:var(--ink);z-index:1;transform:rotate(-2deg)}
-#lockHint{margin-top:30px;font:400 25px/1 var(--hand);color:var(--cream2);min-height:26px;text-align:center}
-#slots{display:flex;gap:16px;margin:16px 0 18px}
+.seal{position:absolute;left:50%;top:62%;width:24.5%;height:auto;aspect-ratio:1;margin:-13% 0 0 -12.25%;z-index:3;filter:drop-shadow(0 3px 4px rgba(40,6,10,.45))}
+.envname{position:absolute;left:0;right:0;bottom:7%;text-align:center;font:400 30px/1 var(--hand);font-size:9.7cqw;color:var(--ink);z-index:1;transform:rotate(-2deg)}
+#lockHint{margin-top:clamp(12px,3.6dvh,30px);font:400 25px/1 var(--hand);color:var(--cream2);min-height:26px;text-align:center}
+#slots{display:flex;gap:16px;margin:clamp(6px,2dvh,16px) 0 clamp(10px,2.2dvh,18px)}
 .slot{width:34px;height:44px;border-bottom:1.5px solid rgba(244,234,219,.4);display:flex;align-items:flex-end;justify-content:center;font:400 38px/1 var(--hand);color:var(--cream);transition:border-color .3s}
 .slot b{font-weight:400;transform:translateY(4px)}
 .slot.f{border-color:var(--gold)}
 #slots.shake{animation:shake .45s}
 @keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
-#pad{display:grid;grid-template-columns:repeat(3,64px);gap:10px 30px}
-#pad button{width:64px;height:64px;border-radius:50%;border:1px solid rgba(201,164,106,.32);font:500 30px/1 var(--serif);font-variant-numeric:lining-nums;color:var(--cream);transition:background .15s}
+#pad{--kb:clamp(50px,8.6dvh,64px);display:grid;grid-template-columns:repeat(3,var(--kb));gap:clamp(6px,1.3dvh,10px) 30px}
+#pad button{width:var(--kb);height:var(--kb);border-radius:50%;border:1px solid rgba(201,164,106,.32);font:500 30px/1 var(--serif);font-variant-numeric:lining-nums;color:var(--cream);transition:background .15s}
 #pad button:active{background:rgba(201,164,106,.22)}
 #pad .x{border:none;font:italic 400 18px var(--serif);color:var(--cream2)}
 #lock.opening .seal{animation:sealPop .8s var(--ease) forwards}
@@ -73,16 +73,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
 /* letter */
 #letter{padding:calc(env(safe-area-inset-top) + 18px) 14px calc(env(safe-area-inset-bottom) + 16px)}
-.sheet{position:relative;height:100%;padding:34px 26px 24px 28px;box-shadow:0 24px 50px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3);transform:translateY(70px) rotate(-.8deg);opacity:0;transition:transform 1.3s var(--ease) .2s,opacity 1s .2s;display:flex;flex-direction:column;color:var(--ink)}
+.sheet{--lf:28px;position:relative;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:34px 26px 22px 28px;box-shadow:0 24px 50px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3);transform:translateY(70px) rotate(-.8deg);opacity:0;transition:transform 1.3s var(--ease) .2s,opacity 1s .2s;display:flex;flex-direction:column;color:var(--ink)}
 #letter.on .sheet{transform:rotate(-.8deg);opacity:1}
 .sheet::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,transparent 33.2%,rgba(80,50,30,.045) 33.3%,rgba(255,255,255,.3) 33.6%,transparent 34%,transparent 66.4%,rgba(80,50,30,.045) 66.5%,rgba(255,255,255,.3) 66.8%,transparent 67.2%)}
-#lines{font:400 clamp(24px,7.2vw,29px)/1.22 var(--hand)}
+#lines{font:400 var(--lf)/1.22 var(--hand)}
 #lines div{min-height:.6em}
-#sign{font:400 40px/1 var(--hand);margin-top:14px;align-self:flex-end;transform:rotate(-4deg);opacity:0;transition:opacity 1s}
+#sign{font:400 calc(var(--lf) * 1.4)/1 var(--hand);margin-top:calc(var(--lf) * .4);align-self:flex-end;transform:rotate(-4deg);opacity:0;transition:opacity 1s}
 #sign.in{opacity:1}
-#ps{font:400 24px/1 var(--hand);color:var(--wine);margin-top:10px;opacity:0;transition:opacity 1s}
+#ps{font:400 calc(var(--lf) * .86)/1 var(--hand);color:var(--wine);margin-top:calc(var(--lf) * .3);opacity:0;transition:opacity 1s}
 #ps.in{opacity:1}
-#toStory{margin-top:auto;align-self:flex-start;color:var(--ink);border-color:rgba(43,29,32,.3);opacity:0;pointer-events:none}
+#toStory{margin-top:auto;flex:none;align-self:flex-start;color:var(--ink);border-color:rgba(43,29,32,.3);opacity:0;pointer-events:none}
 #toStory.in{opacity:1;pointer-events:auto}
 
 /* story */
@@ -186,8 +186,16 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .pmark{position:absolute;right:32px;top:20px;width:70px;height:70px;right:9cqw;top:6cqw;width:20cqw;height:20cqw;transform:rotate(-12deg);opacity:.62}
 .addr{position:absolute;left:3.6cqw;right:0;bottom:1cqw;font:400 17px/1 var(--hand);font:400 4.9cqw/1 var(--hand)}
 .addr div{border-bottom:1px solid rgba(43,29,32,.28);padding:1.8cqw 0 .5cqw}
-#pcHint{margin-top:26px;font:400 27px/1 var(--hand);color:var(--cream2);display:flex;align-items:center;gap:8px;transition:opacity .6s}
-#pcHint svg{width:34px;height:26px}
+#pcHint{margin-top:24px;font:400 27px/1 var(--hand);color:var(--cream);display:flex;align-items:center;gap:10px;transition:opacity .6s}
+#pcHint svg{width:30px;height:34px;flex:none}
+.tapme{position:absolute;right:13%;bottom:16%;width:56px;height:56px;margin:-28px;z-index:5;pointer-events:none}
+.tapme i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,250,240,.95);box-shadow:0 0 12px rgba(255,220,180,.6);animation:ripple 1.8s ease-out infinite}
+.tapme i:nth-child(2){animation-delay:.6s}
+.tapme b{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;border-radius:50%;background:rgba(255,250,240,.95);box-shadow:0 0 10px rgba(255,220,180,.8)}
+@keyframes ripple{0%{transform:scale(.35);opacity:1}100%{transform:scale(1.5);opacity:0}}
+.pc.flip .tapme,.pc.seen .tapme{display:none}
+.pc.nudge .pc-in{animation:nudge 3.4s ease-in-out 1.6s infinite}
+@keyframes nudge{0%,64%,100%{transform:rotateY(0)}74%{transform:rotateY(24deg)}84%{transform:rotateY(-7deg)}91%{transform:rotateY(3deg)}}
 .end{margin-top:22px;text-align:center;opacity:0;transform:translateY(10px);transition:opacity 1.2s,transform 1.2s var(--ease);pointer-events:none}
 .end.in{opacity:1;transform:none;pointer-events:auto}
 #endT{font:400 40px/1 var(--hand);color:var(--cream)}
@@ -257,7 +265,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   </section>
 
   <section id="cardScr" class="scr">
-    <div class="pc" id="pc">
+    <div class="pc nudge" id="pc"><span class="tapme"><i></i><i></i><b></b></span>
       <div class="pc-in">
         <div class="face front">
           <svg viewBox="0 0 360 236" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -312,7 +320,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
         </div>
       </div>
     </div>
-    <div id="pcHint"><span id="pcHintT"></span><svg viewBox="0 0 34 26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 6 C 14 2, 28 6, 28 18"/><path d="M22 14 L28 19 L32 12"/></svg></div>
+    <div id="pcHint"><svg viewBox="0 0 30 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 32 C 4 24, 6 12, 20 4"/><path d="M12 4 L21 3 L19 12"/></svg><span id="pcHintT"></span></div>
     <div class="end" id="end">
       <div id="endT"></div>
       <div id="endS"></div>
@@ -471,10 +479,19 @@ async function writeLines(els, speed){
     await sleep(d + 160);
   }
 }
+function fitLetter(){
+  const sh = $('.sheet'); if (!sh) return;
+  let fs = Math.min(29, Math.max(22, window.innerWidth * 0.072));
+  sh.style.setProperty('--lf', fs + 'px');
+  while (sh.scrollHeight > sh.clientHeight + 1 && fs > 15) { fs -= 0.5; sh.style.setProperty('--lf', fs + 'px'); }
+}
+window.addEventListener('resize', () => { if ($('#letter').classList.contains('on')) fitLetter(); });
 async function writeLetter(){
   tokens();
   const box = $('#lines');
   box.innerHTML = M.letter.lines.map(l => `<div class="wl">${fill(l)}</div>`).join('');
+  try { await document.fonts.ready; } catch (e) {}
+  fitLetter();
   setInterval(() => { tokens(); document.querySelectorAll('[data-t]').forEach(s => s.textContent = T[s.dataset.t]); }, 15000);
   await sleep(1300);
   await writeLines([...box.children], 40);
@@ -718,6 +735,7 @@ $('#pc').addEventListener('click', () => {
   $('#pc').classList.toggle('flip');
   if (!flippedOnce) {
     flippedOnce = true;
+    $('#pc').classList.remove('nudge'); $('#pc').classList.add('seen');
     $('#pcHint').style.opacity = 0;
     setTimeout(() => { $('#pcHint').style.display = 'none'; $('#end').classList.add('in'); }, 2600);
   }
