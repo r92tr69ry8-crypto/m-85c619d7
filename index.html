@@ -160,7 +160,23 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 #heart{position:relative;width:min(80vw,300px);aspect-ratio:300/270}
 #heart>svg,#heart canvas{position:absolute;inset:0;width:100%;height:100%}
 #heart canvas{touch-action:none;transition:opacity 1.4s var(--ease)}
-.phrase{position:absolute;left:0;right:0;top:31%;text-align:center;font:500 clamp(26px,8.6vw,32px)/1.12 var(--serif);color:var(--wine)}
+.phrase{position:absolute;left:0;right:0;top:25%;text-align:center;font:500 clamp(62px,21vw,90px)/1 var(--serif);font-variant-numeric:lining-nums;letter-spacing:.02em;color:var(--wine)}
+#heart{transition:opacity .35s}
+#heartScr.gx #hIntro,#heartScr.gx #heart,#heartScr.gx #hSub{opacity:0;pointer-events:none;transition:opacity .35s}
+#gx{position:absolute;inset:0;z-index:4;pointer-events:none}
+#heartScr.gx #gx{pointer-events:auto}
+#gxDim{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 45%,rgba(34,10,20,.6),rgba(5,2,4,.95));opacity:0;transition:opacity 2.6s var(--ease)}
+#heartScr.gx #gxDim{opacity:1}
+#gxc{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.gxl{position:absolute;left:22px;right:22px;text-align:center;font:400 42px/1.08 var(--hand);color:var(--cream);-webkit-text-stroke:.45px currentColor;text-shadow:0 0 10px rgba(8,2,5,.95),0 0 26px rgba(8,2,5,.8),0 0 24px rgba(255,190,140,.25);opacity:0;transform:translateY(10px);transition:opacity 1.6s var(--ease),transform 1.6s var(--ease);text-wrap:balance;pointer-events:none}
+.gxl.in{opacity:1;transform:none}
+#gxL1{top:38%}
+#gxL2{top:calc(38% + 62px);font-size:34px}
+#gxSub{top:72%;font-size:32px}
+#gxTouch{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 98px);text-align:center;font:italic 400 18px var(--serif);color:var(--cream2);opacity:0;transition:opacity 1.2s;pointer-events:none}
+#gxTouch.in{opacity:1}
+#heartScr.gx #toCard{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 32px);transform:translateX(-50%);margin:0;z-index:6;white-space:nowrap}
+#heartScr.gx #toCard:active{transform:translateX(-50%) scale(.96)}
 #heart.beat{animation:beat 1.25s ease-in-out infinite}
 @keyframes beat{0%{transform:scale(1)}14%{transform:scale(1.06)}28%{transform:scale(1)}42%{transform:scale(1.04)}70%{transform:scale(1)}}
 #hSub{font:400 34px/1.1 var(--hand);color:var(--cream);margin-top:26px;min-height:30px;text-align:center;opacity:0;transition:opacity 1.2s}
@@ -264,6 +280,14 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
       <canvas id="cv"></canvas>
     </div>
     <div id="hSub"></div>
+    <div id="gx">
+      <div id="gxDim"></div>
+      <canvas id="gxc"></canvas>
+      <div class="gxl" id="gxL1"></div>
+      <div class="gxl" id="gxL2"></div>
+      <div class="gxl" id="gxSub"></div>
+      <div id="gxTouch"></div>
+    </div>
     <button class="pill" id="toCard"></button>
   </section>
 
@@ -378,8 +402,11 @@ function fillTexts(){
   $('#sign').textContent = M.letter.sign;
   $('#ps').textContent = M.letter.ps || '';
   $('#hIntro').textContent = M.heart.intro;
-  $('#phrase').innerHTML = M.heart.phrase.map(esc).join('<br>');
-  $('#hSub').textContent = M.heart.after;
+  $('#phrase').textContent = M.heart.under;
+  $('#gxL1').textContent = M.heart.lines[0];
+  $('#gxL2').textContent = M.heart.lines[1];
+  $('#gxSub').textContent = M.heart.after;
+  $('#gxTouch').textContent = M.heart.touch;
   $('#toCard').innerHTML = esc(M.heart.next) + ARROW;
   $('#hbase').setAttribute('d', HEART);
   $('#fText').textContent = M.postcard.front;
@@ -688,12 +715,14 @@ story.addEventListener('pointercancel', () => { paused = false; if (vid) vid.pla
 async function toHeart(){
   if (vid) vid.pause();
   table.querySelectorAll('video').forEach(v => v.pause());
+  resetGalaxy();
   show('heartScr');
-  try { await document.fonts.load('34px "Reenie Beanie"'); } catch (e) {}
+  try { await Promise.all([document.fonts.load('34px "Reenie Beanie"'), document.fonts.load('500 80px "Cormorant Garamond"'), document.fonts.load('italic 500 60px "Cormorant Garamond"')]); } catch (e) {}
   initScratch();
 }
 function initScratch(){
   const cv = $('#cv'), box = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  cv.style.opacity = 1; cv.style.pointerEvents = 'auto';
   cv.width = Math.round(box.width * dpr); cv.height = Math.round(box.height * dpr);
   const x = cv.getContext('2d'), k = box.width / 300 * dpr;
   x.setTransform(k, 0, 0, k, 0, 0);
@@ -714,16 +743,9 @@ function initScratch(){
   const draw = p => {
     x.lineWidth = 42; x.lineCap = 'round'; x.lineJoin = 'round';
     x.beginPath(); x.moveTo(...(lp || p)); x.lineTo(...p); x.stroke(); lp = p;
-    if (++n % 10 === 0 && !done && 1 - count(x, cv) / total > .55) reveal();
+    if (++n % 8 === 0 && !done && 1 - count(x, cv) / total > .4) { done = true; cv.style.pointerEvents = 'none'; navigator.vibrate && navigator.vibrate([30, 50, 30]); setTimeout(() => startGalaxy(cv), 700); }
   };
-  const reveal = () => {
-    done = true; cv.style.opacity = 0; cv.style.pointerEvents = 'none';
-    navigator.vibrate && navigator.vibrate([70, 110, 50]);
-    setTimeout(() => $('#heart').classList.add('beat'), 900);
-    setTimeout(() => $('#hSub').classList.add('in'), 1900);
-    setTimeout(() => $('#toCard').classList.add('in'), 3600);
-  };
-  cv.onpointerdown = e => { down = true; lp = null; cv.setPointerCapture(e.pointerId); draw(pt(e)); };
+  cv.onpointerdown = e => { down = true; lp = null; try { cv.setPointerCapture(e.pointerId); } catch (_) {} draw(pt(e)); };
   cv.onpointermove = e => { if (down) draw(pt(e)); };
   cv.onpointerup = cv.onpointercancel = () => { down = false; lp = null; };
 }
@@ -732,7 +754,155 @@ function count(x, cv){
   for (let i = 3; i < d.length; i += 64) if (d[i] > 20) c++;
   return c;
 }
-$('#toCard').addEventListener('click', () => { show('cardScr'); });
+
+// ---------- 3000 universes ----------
+// The heart breaks into exactly 3000 lights. They become 3000 universes,
+// gather back into one heart, beat twice, and write "I love you 3000".
+const N = 3000;
+let gxRaf = 0, gxTimers = [];
+function resetGalaxy(){
+  cancelAnimationFrame(gxRaf); gxTimers.forEach(clearTimeout); gxTimers = [];
+  $('#heartScr').classList.remove('gx');
+  ['#gxL1', '#gxL2', '#gxSub', '#gxTouch', '#toCard'].forEach(q => $(q).classList.remove('in'));
+  const c = $('#gxc'); c.getContext('2d').clearRect(0, 0, c.width, c.height);
+}
+function glowSprite(rgb){
+  const s = document.createElement('canvas'); s.width = s.height = 64;
+  const g = s.getContext('2d'), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  r.addColorStop(0, `rgba(${rgb},1)`); r.addColorStop(.12, `rgba(${rgb},.95)`); r.addColorStop(.32, `rgba(${rgb},.28)`); r.addColorStop(1, `rgba(${rgb},0)`);
+  g.fillStyle = r; g.fillRect(0, 0, 64, 64); return s;
+}
+function sampleShape(W, H, paint){
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'); paint(g);
+  const d = g.getImageData(0, 0, W, H).data, pts = [];
+  for (let y = 0; y < H; y += 2) for (let xx = 0; xx < W; xx += 2) if (d[(y * W + xx) * 4 + 3] > 150) pts.push(xx, y);
+  const m = pts.length / 2, out = new Float32Array(N * 2);
+  const order = [...Array(m).keys()];
+  for (let i = m - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  for (let i = 0; i < N; i++) {
+    const o = order[i % Math.max(1, m)] || 0;
+    out[i * 2] = (pts[o * 2] || W / 2) + (i >= m ? (Math.random() - .5) * 2.5 : Math.random() * 1.6);
+    out[i * 2 + 1] = (pts[o * 2 + 1] || H / 2) + (i >= m ? (Math.random() - .5) * 2.5 : Math.random() * 1.6);
+  }
+  return out;
+}
+function startGalaxy(scratchCv){
+  const app = $('#app').getBoundingClientRect(), hr = $('#heart').getBoundingClientRect();
+  const W = Math.round(app.width), H = Math.round(app.height), dpr = Math.min(2, window.devicePixelRatio || 1);
+  const cv = $('#gxc'); cv.width = W * dpr; cv.height = H * dpr;
+  const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  // colours: cream light, gold from the foil, the pink sky, a little Greek sea
+  const SPR = ['255,244,226', '236,204,142', '246,172,186', '164,200,240', '255,255,255'].map(glowSprite);
+  const px = new Float32Array(N), py = new Float32Array(N), vx = new Float32Array(N), vy = new Float32Array(N);
+  const ux = new Float32Array(N), uy = new Float32Array(N), sz = new Float32Array(N), ph = new Float32Array(N), sp = new Float32Array(N), lag = new Float32Array(N), kk = new Float32Array(N);
+  const col = new Uint8Array(N);
+
+  // start: every light sits where the heart was, coloured like the foil it came from
+  const fd = scratchCv.getContext('2d').getImageData(0, 0, scratchCv.width, scratchCv.height).data;
+  const tester = document.createElement('canvas').getContext('2d'), hp = new Path2D(HEART);
+  const hcx = hr.left - app.left + hr.width / 2, hcy = hr.top - app.top + hr.height * .48;
+  for (let i = 0; i < N; i++) {
+    let u, v;
+    do { u = 12 + Math.random() * 276; v = 12 + Math.random() * 246; } while (!tester.isPointInPath(hp, u, v));
+    px[i] = hr.left - app.left + u / 300 * hr.width; py[i] = hr.top - app.top + v / 270 * hr.height;
+    const ix = Math.min(scratchCv.width - 1, Math.floor(u / 300 * scratchCv.width)), iy = Math.min(scratchCv.height - 1, Math.floor(v / 270 * scratchCv.height));
+    const foil = fd[(iy * scratchCv.width + ix) * 4 + 3] > 40;
+    const r = Math.random();
+    col[i] = foil ? (r < .8 ? 1 : 0) : (r < .62 ? 0 : r < .84 ? 2 : r < .93 ? 3 : 4);
+    const dx = px[i] - hcx, dy = py[i] - hcy, d = Math.hypot(dx, dy) || 1, f = 1.2 + Math.random() * 5.5;
+    vx[i] = dx / d * f + (Math.random() - .5) * 3; vy[i] = dy / d * f + (Math.random() - .5) * 3;
+    sz[i] = .55 + Math.pow(Math.random(), 2.4) * 2.1;
+    ph[i] = Math.random() * 6.283; sp[i] = .6 + Math.random() * 1.8; lag[i] = Math.random(); kk[i] = Math.random();
+  }
+  // 3000 universes: a wide field with a few soft galaxies in it
+  const clusters = [[.24, .22], [.78, .3], [.3, .76], [.74, .8]];
+  for (let i = 0; i < N; i++) {
+    if (Math.random() < .3) {
+      const c = clusters[i % 4], a = Math.random() * 6.283, rr = Math.pow(Math.random(), .7) * Math.min(W, H) * .16;
+      ux[i] = c[0] * W + Math.cos(a) * rr * 1.25; uy[i] = c[1] * H + Math.sin(a) * rr * .8;
+    } else { ux[i] = 8 + Math.random() * (W - 16); uy[i] = 8 + Math.random() * (H - 16); }
+  }
+  // one heart, then the words
+  const HS = Math.min(W * .84 / 276, H * .5 / 246), HCX = W / 2, HCY = H * .44;
+  const heartT = sampleShape(W, H, g => { g.translate(HCX - 150 * HS, HCY - 135 * HS); g.scale(HS, HS); g.fill(hp); });
+  // "I love you" printed like the cards, "3000" in his own handwriting
+  const f1 = Math.round(Math.min(W * .17, H * .085)), f2 = Math.round(Math.min(W * .52, H * .25));
+  const y1 = H * .35, y2 = y1 + f2 * .8;
+  const wordT = sampleShape(W, H, g => {
+    g.fillStyle = '#fff'; g.strokeStyle = '#fff'; g.textAlign = 'center'; g.lineJoin = 'round';
+    g.font = `italic 500 ${f1}px "Cormorant Garamond", Georgia, serif`; g.fillText(M.heart.word[0], W / 2, y1);
+    g.font = `400 ${f2}px "Reenie Beanie", cursive`; g.lineWidth = f2 * .035; g.fillText(M.heart.word[1], W / 2, y2); g.strokeText(M.heart.word[1], W / 2, y2);
+  });
+  $('#gxSub').style.top = Math.round(y2 + f2 * .2) + 'px';
+
+  const T = { l1: 3400, l2: 6200, out: 9800, heart: 10600, b1: 13300, b2: 14050, word: 15600, sub: 19200, touch: 20600, next: 23600 };
+  const t0 = performance.now();
+  $('#heartScr').classList.add('gx');
+  const later = (ms, fn) => gxTimers.push(setTimeout(fn, ms));
+  later(T.l1, () => $('#gxL1').classList.add('in'));
+  later(T.l2, () => $('#gxL2').classList.add('in'));
+  later(T.out, () => { $('#gxL1').classList.remove('in'); $('#gxL2').classList.remove('in'); });
+  later(T.b1, () => navigator.vibrate && navigator.vibrate(45));
+  later(T.b2, () => navigator.vibrate && navigator.vibrate(35));
+  later(T.sub, () => $('#gxSub').classList.add('in'));
+  later(T.touch, () => $('#gxTouch').classList.add('in'));
+  later(T.next, () => $('#toCard').classList.add('in'));
+
+  // a finger stirs the lights, they always find their way back
+  let hx = -999, hy = -999, touching = false;
+  const at = e => { const b = cv.getBoundingClientRect(); hx = e.clientX - b.left; hy = e.clientY - b.top; };
+  cv.onpointerdown = e => { touching = true; at(e); $('#gxTouch').classList.remove('in'); };
+  cv.onpointermove = e => { if (touching || e.pointerType === 'mouse') at(e); };
+  cv.onpointerup = cv.onpointercancel = cv.onpointerleave = () => { touching = false; hx = hy = -999; };
+
+  const beat = t => 1 + .075 * Math.exp(-Math.pow((t - T.b1) / 95, 2)) + .055 * Math.exp(-Math.pow((t - T.b2) / 95, 2));
+  const frame = now => {
+    const t = now - t0;
+    x.clearRect(0, 0, W, H);
+    // the flash when the heart breaks
+    if (t < 1400) {
+      const a = 1 - t / 1400, gr = x.createRadialGradient(hcx, hcy, 0, hcx, hcy, 220);
+      gr.addColorStop(0, `rgba(255,214,160,${(.55 * a).toFixed(3)})`); gr.addColorStop(1, 'rgba(255,214,160,0)');
+      x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.fillStyle = gr; x.fillRect(0, 0, W, H);
+    }
+    x.globalCompositeOperation = 'lighter';
+    const phase = t < T.heart ? 0 : t < T.word ? 1 : 2;
+    const b = phase === 1 ? beat(t) : 1;
+    for (let i = 0; i < N; i++) {
+      let tx, ty, k, damp;
+      if (phase === 0 || (phase === 1 && t < T.heart + lag[i] * 1100)) {
+        const w = t * .00035 * sp[i] + ph[i];
+        tx = ux[i] + Math.sin(w) * 7; ty = uy[i] + Math.cos(w * 1.3) * 6;
+        const ease = Math.min(1, t / 2600);
+        k = (.0012 + kk[i] * .0022) + ease * (.003 + kk[i] * .004); damp = .95;
+      } else if (phase === 1 || t < T.word + lag[i] * 1300) {
+        tx = HCX + (heartT[i * 2] - HCX) * b; ty = HCY + (heartT[i * 2 + 1] - HCY) * b;
+        k = .018 + kk[i] * .03; damp = .87;
+      } else {
+        tx = wordT[i * 2] + Math.sin(t * .002 + ph[i]) * .45; ty = wordT[i * 2 + 1] + Math.cos(t * .0017 + ph[i]) * .45;
+        k = .022 + kk[i] * .035; damp = .86;
+      }
+      vx[i] = (vx[i] + (tx - px[i]) * k) * damp;
+      vy[i] = (vy[i] + (ty - py[i]) * k) * damp;
+      if (hx > -900) {
+        const dx = px[i] - hx, dy = py[i] - hy, d2 = dx * dx + dy * dy;
+        if (d2 < 7200) { const d = Math.sqrt(d2) || 1, f = (1 - d / 85) * 3.2; vx[i] += dx / d * f; vy[i] += dy / d * f; }
+      }
+      px[i] += vx[i]; py[i] += vy[i];
+      const tw = .5 + .5 * Math.sin(t * .0024 * sp[i] + ph[i]);
+      x.globalAlpha = phase === 2 ? .62 + .38 * tw : .3 + .7 * tw;
+      const s = sz[i] * (phase === 2 ? 3.6 : 5.2);
+      x.drawImage(SPR[col[i]], px[i] - s / 2, py[i] - s / 2, s, s);
+    }
+    x.globalAlpha = 1;
+    gxRaf = requestAnimationFrame(frame);
+  };
+  cancelAnimationFrame(gxRaf);
+  gxRaf = requestAnimationFrame(frame);
+}
+$('#toCard').addEventListener('click', () => { show('cardScr'); gxTimers.push(setTimeout(() => cancelAnimationFrame(gxRaf), 1400)); });
 
 // ---------- postcard ----------
 let flippedOnce = false;
