@@ -755,9 +755,7 @@ function count(x, cv){
   return c;
 }
 
-// ---------- 3000 universes ----------
-// The heart breaks into exactly 3000 lights. They become 3000 universes,
-// gather back into one heart, beat twice, and write "I love you 3000".
+// ---------- lights ----------
 const N = 3000;
 let gxRaf = 0, gxTimers = [];
 function resetGalaxy(){
@@ -793,7 +791,7 @@ function startGalaxy(scratchCv){
   const cv = $('#gxc'); cv.width = W * dpr; cv.height = H * dpr;
   const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  // colours: cream light, gold from the foil, the pink sky, a little Greek sea
+  // colours: cream, gold from the foil, rose, a little blue
   const SPR = ['255,244,226', '236,204,142', '246,172,186', '164,200,240', '255,255,255'].map(glowSprite);
   const px = new Float32Array(N), py = new Float32Array(N), vx = new Float32Array(N), vy = new Float32Array(N);
   const ux = new Float32Array(N), uy = new Float32Array(N), sz = new Float32Array(N), ph = new Float32Array(N), sp = new Float32Array(N), lag = new Float32Array(N), kk = new Float32Array(N);
@@ -816,7 +814,7 @@ function startGalaxy(scratchCv){
     sz[i] = .55 + Math.pow(Math.random(), 2.4) * 2.1;
     ph[i] = Math.random() * 6.283; sp[i] = .6 + Math.random() * 1.8; lag[i] = Math.random(); kk[i] = Math.random();
   }
-  // 3000 universes: a wide field with a few soft galaxies in it
+  // a wide field with a few soft clusters in it
   const clusters = [[.24, .22], [.78, .3], [.3, .76], [.74, .8]];
   for (let i = 0; i < N; i++) {
     if (Math.random() < .3) {
@@ -827,7 +825,7 @@ function startGalaxy(scratchCv){
   // one heart, then the words
   const HS = Math.min(W * .84 / 276, H * .5 / 246), HCX = W / 2, HCY = H * .44;
   const heartT = sampleShape(W, H, g => { g.translate(HCX - 150 * HS, HCY - 135 * HS); g.scale(HS, HS); g.fill(hp); });
-  // "I love you" printed like the cards, "3000" in his own handwriting
+  // first line printed like the cards, second line handwritten
   const f1 = Math.round(Math.min(W * .17, H * .085)), f2 = Math.round(Math.min(W * .52, H * .25));
   const y1 = H * .35, y2 = y1 + f2 * .8;
   const wordT = sampleShape(W, H, g => {
